@@ -1,48 +1,46 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
+import { useAppStore } from "@/lib/store/AppStore";
 import type { User } from "@/types";
-import { mockUser } from "@/lib/mock/data";
-
-/**
- * Frontend-only auth facade.
- * Real Supabase Auth will replace the body of this hook cleanly.
- */
 
 export interface AuthState {
-  user: User | null;
+  user: User;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (
-    name: string,
-    email: string,
-    password: string,
-  ) => Promise<void>;
+  signUp: (name: string, email: string, password: string) => Promise<void>;
   signOut: () => void;
 }
 
 export function useAuth(): AuthState {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(false);
+  const { state, dispatch } = useAppStore();
 
-  const signIn = useCallback(async (_email: string, _password: string) => {
-    setLoading(true);
-    await new Promise((r) => setTimeout(r, 400));
-    setUser(mockUser);
-    setLoading(false);
-  }, []);
-
-  const signUp = useCallback(
-    async (_name: string, _email: string, _password: string) => {
-      setLoading(true);
-      await new Promise((r) => setTimeout(r, 400));
-      setUser(mockUser);
-      setLoading(false);
+  const signIn = useCallback(
+    async (email: string, _password: string) => {
+      // Placeholder — Supabase Auth will replace this.
+      dispatch({ type: "UPDATE_USER", payload: { email } });
+      await new Promise((r) => setTimeout(r, 350));
     },
-    [],
+    [dispatch],
   );
 
-  const signOut = useCallback(() => setUser(null), []);
+  const signUp = useCallback(
+    async (name: string, email: string, _password: string) => {
+      dispatch({ type: "UPDATE_USER", payload: { name, email } });
+      await new Promise((r) => setTimeout(r, 350));
+    },
+    [dispatch],
+  );
 
-  return { user, loading, signIn, signUp, signOut };
+  const signOut = useCallback(() => {
+    // Auth is a placeholder — nothing to do yet.
+  }, []);
+
+  return {
+    user: state.user,
+    loading: !state.hydrated,
+    signIn,
+    signUp,
+    signOut,
+  };
 }

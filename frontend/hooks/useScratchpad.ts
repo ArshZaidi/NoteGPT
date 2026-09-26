@@ -1,51 +1,51 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { Scratchpad } from "@/types";
-import { getScratchpad } from "@/lib/api/scratchpad";
+import { useAppStore } from "@/lib/store/AppStore";
 import { countWords } from "@/lib/utils/format";
-import { useAutosave, type SaveState } from "./useAutoSave";
 
-export interface UseScratchpad {
-  content: string;
-  setContent: (v: string) => void;
-  wordCount: number;
-  saveState: SaveState;
-  lastSaved: Date | null;
-  clear: () => void;
-}
+export type SaveState = "idle" | "saving" | "saved";
 
-export function useScratchpad(): UseScratchpad {
+export function useScratchpad() {
+  const { state, dispatch } = useAppStore();
   const [content, setContent] = useState("");
-  const [loaded, setLoaded] = useState(false);
-  const loadedRef = useRef(false);
+  const [saveState, setSaveState] = useState<SaveState>("idle");
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const seededRef = useRef(false);
 
+  // Seed from store once hydrated.
   useEffect(() => {
-    let active = true;
-    getScratchpad().then((sp: Scratchpad) => {
-      if (!active || loadedRef.current) return;
-      loadedRef.current = true;
-      setContent(sp.content);
-      setLoaded(true);
-    });
-    return () => {
-      active = false;
-    };
-  }, []);
+    if (state.hydrated && !seededRef.current) {
+      seededRef.current = true;
+      setContent(state.scratchpad.content);
+    }
+  }, [state.hydrated, state.scratchpad.content]);
 
-  const onSave = useCallback(async (_: string) => {
-    // Replace with real persistence later.
-  }, []);
+  // Debounced save to store.
+  useEffect(() => {
+    if (!seededRef.current) return;
+    if (content === state.scratchpad.content) return;
+    setSaveState("saving");
+    const t = setTimeout(() => {
+      dispatch({ type: "SET_SCRATCHPAD", payload: content });
+      setSaveState("saved");
+      setLastSaved(new Date());
+    }, 600);
+    return () => clearTimeout(t);
+  }, [content, state.scratchpad.content, dispatch]);
 
-  const { state, lastSaved } = useAutosave(content, onSave, 800);
-
-  const clear = useCallback(() => setContent(""), []);
+  const clear = useCallback(() => {
+    setContent("");
+    dispatch({ type: "SET_SCRATCHPAD", payload: "" });
+    setSaveState("saved");
+    setLastSaved(new Date());
+  }, [dispatch]);
 
   return {
     content,
     setContent,
     wordCount: countWords(content),
-    saveState: loaded ? state : "idle",
+    saveState,
     lastSaved,
     clear,
   };

@@ -1,45 +1,51 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
+import { useAppStore } from "@/lib/store/AppStore";
 import type { Todo, TodoStatus } from "@/types";
-import { listTodos } from "@/lib/api/todos";
 
 export function useTodos() {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { state, dispatch } = useAppStore();
 
-  useEffect(() => {
-    let active = true;
-    listTodos()
-      .then((t) => active && setTodos(t))
-      .finally(() => active && setLoading(false));
-    return () => {
-      active = false;
-    };
-  }, []);
+  const addTodo = useCallback(
+    (todo: Todo) => dispatch({ type: "ADD_TODO", payload: todo }),
+    [dispatch],
+  );
 
-  const addTodo = useCallback((todo: Todo) => {
-    setTodos((prev) => [todo, ...prev]);
-  }, []);
+  const updateTodo = useCallback(
+    (id: string, patch: Partial<Todo>) =>
+      dispatch({ type: "UPDATE_TODO", payload: { id, patch } }),
+    [dispatch],
+  );
 
-  const updateStatus = useCallback((id: string, status: TodoStatus) => {
-    setTodos((prev) =>
-      prev.map((t) =>
-        t.id === id
-          ? {
-              ...t,
-              status,
-              completedAt:
-                status === "completed" ? new Date().toISOString() : undefined,
-            }
-          : t,
-      ),
-    );
-  }, []);
+  const updateStatus = useCallback(
+    (id: string, status: TodoStatus) => {
+      dispatch({
+        type: "UPDATE_TODO",
+        payload: {
+          id,
+          patch: {
+            status,
+            completedAt:
+              status === "completed" ? new Date().toISOString() : undefined,
+          },
+        },
+      });
+    },
+    [dispatch],
+  );
 
-  const removeTodo = useCallback((id: string) => {
-    setTodos((prev) => prev.filter((t) => t.id !== id));
-  }, []);
+  const removeTodo = useCallback(
+    (id: string) => dispatch({ type: "DELETE_TODO", payload: id }),
+    [dispatch],
+  );
 
-  return { todos, loading, addTodo, updateStatus, removeTodo };
+  return {
+    todos: state.todos,
+    loading: !state.hydrated,
+    addTodo,
+    updateTodo,
+    updateStatus,
+    removeTodo,
+  };
 }

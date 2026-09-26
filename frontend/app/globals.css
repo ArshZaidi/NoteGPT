@@ -2,7 +2,7 @@
 
 @theme {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-display: var(--font-display), ui-serif, Georgia, serif;
+  --font-display: var(--font-serif-display), ui-serif, Georgia, serif;
 
   --color-canvas: #faf9f5;
   --color-surface: #ffffff;
@@ -94,8 +94,6 @@
   .pb-safe { padding-bottom: max(env(safe-area-inset-bottom), 0px); }
   .pl-safe { padding-left: max(env(safe-area-inset-left), 0px); }
   .pr-safe { padding-right: max(env(safe-area-inset-right), 0px); }
-  .mt-safe { margin-top: max(env(safe-area-inset-top), 0px); }
-  .mb-safe { margin-bottom: max(env(safe-area-inset-bottom), 0px); }
 
   .text-balance { text-wrap: balance; }
   .text-pretty { text-wrap: pretty; }

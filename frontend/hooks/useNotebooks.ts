@@ -1,54 +1,44 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import type { Notebook, NotebookSection } from "@/types";
-import {
-  getNotebook,
-  getNotebookSections,
-  listNotebooks,
-} from "@/lib/api/notebooks";
+import { useCallback } from "react";
+import { useAppStore } from "@/lib/store/AppStore";
+import type { Notebook } from "@/types";
 
 export function useNotebooks() {
-  const [data, setData] = useState<Notebook[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { state, dispatch } = useAppStore();
 
-  useEffect(() => {
-    let active = true;
-    listNotebooks()
-      .then((n) => active && setData(n))
-      .catch((e: unknown) =>
-        active && setError(e instanceof Error ? e.message : "Failed"),
-      )
-      .finally(() => active && setLoading(false));
-    return () => {
-      active = false;
-    };
-  }, []);
+  const addNotebook = useCallback(
+    (nb: Notebook) => dispatch({ type: "ADD_NOTEBOOK", payload: nb }),
+    [dispatch],
+  );
 
-  return { notebooks: data, loading, error };
+  const updateNotebook = useCallback(
+    (id: string, patch: Partial<Notebook>) =>
+      dispatch({ type: "UPDATE_NOTEBOOK", payload: { id, patch } }),
+    [dispatch],
+  );
+
+  const removeNotebook = useCallback(
+    (id: string) => dispatch({ type: "DELETE_NOTEBOOK", payload: id }),
+    [dispatch],
+  );
+
+  return {
+    notebooks: state.notebooks,
+    loading: !state.hydrated,
+    addNotebook,
+    updateNotebook,
+    removeNotebook,
+  };
 }
 
 export function useNotebook(id: string | null) {
-  const [notebook, setNotebook] = useState<Notebook | null>(null);
-  const [sections, setSections] = useState<NotebookSection[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!id) return;
-    let active = true;
-    setLoading(true);
-    Promise.all([getNotebook(id), getNotebookSections(id)])
-      .then(([nb, secs]) => {
-        if (!active) return;
-        setNotebook(nb);
-        setSections(secs);
-      })
-      .finally(() => active && setLoading(false));
-    return () => {
-      active = false;
-    };
-  }, [id]);
-
-  return { notebook, sections, loading };
+  const { state } = useAppStore();
+  const notebook = id
+    ? state.notebooks.find((n) => n.id === id) ?? null
+    : null;
+  return {
+    notebook,
+    loading: !state.hydrated,
+  };
 }

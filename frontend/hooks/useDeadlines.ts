@@ -1,27 +1,42 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback } from "react";
+import { useAppStore } from "@/lib/store/AppStore";
 import type { Deadline, Reminder } from "@/types";
-import { listDeadlines, listReminders } from "@/lib/api/deadlines";
 
 export function useDeadlines() {
-  const [deadlines, setDeadlines] = useState<Deadline[]>([]);
-  const [reminders, setReminders] = useState<Reminder[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { state, dispatch } = useAppStore();
 
-  useEffect(() => {
-    let active = true;
-    Promise.all([listDeadlines(), listReminders()])
-      .then(([d, r]) => {
-        if (!active) return;
-        setDeadlines(d);
-        setReminders(r);
-      })
-      .finally(() => active && setLoading(false));
-    return () => {
-      active = false;
-    };
-  }, []);
+  const addDeadline = useCallback(
+    (deadline: Deadline) =>
+      dispatch({ type: "ADD_DEADLINE", payload: deadline }),
+    [dispatch],
+  );
 
-  return { deadlines, reminders, loading };
+  const updateDeadline = useCallback(
+    (id: string, patch: Partial<Deadline>) =>
+      dispatch({ type: "UPDATE_DEADLINE", payload: { id, patch } }),
+    [dispatch],
+  );
+
+  const removeDeadline = useCallback(
+    (id: string) => dispatch({ type: "DELETE_DEADLINE", payload: id }),
+    [dispatch],
+  );
+
+  const addReminder = useCallback(
+    (reminder: Reminder) =>
+      dispatch({ type: "ADD_REMINDER", payload: reminder }),
+    [dispatch],
+  );
+
+  return {
+    deadlines: state.deadlines,
+    reminders: state.reminders,
+    loading: !state.hydrated,
+    addDeadline,
+    updateDeadline,
+    removeDeadline,
+    addReminder,
+  };
 }

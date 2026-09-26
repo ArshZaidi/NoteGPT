@@ -1,22 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback } from "react";
+import { useAppStore } from "@/lib/store/AppStore";
 import type { Document } from "@/types";
-import { listDocuments } from "@/lib/api/documents";
 
 export function useDocuments() {
-  const [documents, setDocuments] = useState<Document[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { state, dispatch } = useAppStore();
 
-  useEffect(() => {
-    let active = true;
-    listDocuments()
-      .then((d) => active && setDocuments(d))
-      .finally(() => active && setLoading(false));
-    return () => {
-      active = false;
-    };
-  }, []);
+  const addDocument = useCallback(
+    (doc: Document) => dispatch({ type: "ADD_DOCUMENT", payload: doc }),
+    [dispatch],
+  );
 
-  return { documents, loading };
+  const updateDocument = useCallback(
+    (id: string, patch: Partial<Document>) =>
+      dispatch({ type: "UPDATE_DOCUMENT", payload: { id, patch } }),
+    [dispatch],
+  );
+
+  const removeDocument = useCallback(
+    (id: string) => dispatch({ type: "DELETE_DOCUMENT", payload: id }),
+    [dispatch],
+  );
+
+  return {
+    documents: state.documents,
+    loading: !state.hydrated,
+    addDocument,
+    updateDocument,
+    removeDocument,
+  };
 }

@@ -1,15 +1,232 @@
-node_modules
-.next
-out
-build
-dist
-.env
-.env.local
-.env*.local
-*.log
+# ============================================
+# NoteGPT — root .gitignore
+# ============================================
+
+# ---------- OS ----------
 .DS_Store
-.venv
-__pycache__
-*.pyc
-backend/.env
-.vercel
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# ---------- Editors / IDEs ----------
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
+.idea/
+*.iml
+*.ipr
+*.iws
+.fleet/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# ---------- Logs ----------
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# ============================================
+# Frontend (Next.js / Node)
+# ============================================
+node_modules/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+.yarn/cache
+.yarn/install-state.gz
+
+# Next.js
+.next/
+out/
+build/
+dist/
+.swc/
+next-env.d.ts
+next.config.js.map
+
+# Environment
+.env
+.env.*
+!.env.example
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# TypeScript
+*.tsbuildinfo
+.tsbuildinfo
+
+# Turbopack / SWC
+.turbo/
+.swc/
+
+# Testing / coverage
+coverage/
+.nyc_output/
+*.lcov
+
+# Vercel
+.vercel/
+
+# ============================================
+# Backend (FastAPI / Python)
+# ============================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+.python-version
+
+# Python tooling
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.ruff_cache/
+.tox/
+.nox/
+.hypothesis/
+.pytype/
+.pyre/
+.pyoxidizer/
+*.cover
+.hypothesis/
+coverage.xml
+htmlcov/
+
+# FastAPI / Uvicorn
+*.pid
+*.seed
+uvicorn.pid
+
+# Alembic (if used later)
+# alembic/versions/*.py  # <- uncomment only if you want to keep migrations ignored
+
+# ============================================
+# Supabase
+# ============================================
+# Keep migrations tracked:
+!supabase/migrations/
+
+# Local supabase state
+supabase/.branches/
+supabase/.temp/
+supabase/.storage/
+supabase/functions/**/node_modules/
+
+# Supabase env — never commit
+supabase/.env
+supabase/.env.*
+!.supabase/.env.example
+
+# ============================================
+# Capacitor (Android packaging)
+# ============================================
+android/.gradle/
+android/.idea/
+android/build/
+android/app/build/
+android/local.properties
+android/captures/
+android/.cxx/
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+android/app/src/main/assets/capacitor.config.*.json
+android/app/src/main/res/xml/config.xml
+android/keystores/
+*.jks
+*.keystore
+
+ios/App/Pods/
+ios/App/build/
+ios/App/DerivedData/
+ios/App/*.xcworkspace/xcuserdata/
+ios/App/*.xcodeproj/xcuserdata/
+ios/App/*.xcodeproj/project.xcworkspace/xcuserdata/
+ios/App/App/public/
+ios/App/App/capacitor.config.json
+ios/App/App/capacitor.config.*.json
+ios/App/App/capacitor.plugins.json
+ios/App/App/config.xml
+*.mobileprovision
+*.xcarchive
+
+# Capacitor build output
+.capacitor/
+
+# ============================================
+# Secrets / Keys — NEVER COMMIT
+# ============================================
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+service-account*.json
+gcp-*.json
+firebase-adminsdk-*.json
+secrets/
+.secrets/
+
+# ============================================
+# Docs / Local artifacts
+# ============================================
+*.bak
+*.tmp
+*.temp
+*.orig
+*.rej
+*.cache
+.cache/
+
+# ============================================
+# Misc
+# ============================================
+*.tgz
+*.tar.gz
+.DS_Store
