@@ -1,26 +1,151 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-display-serif), ui-serif, Georgia, serif;
+
+  /* Surfaces */
+  --color-canvas: #faf9f5;
+  --color-surface: #ffffff;
+  --color-surface-soft: #f5f3ee;
+  --color-surface-sunken: #efece5;
+
+  /* Ink */
+  --color-ink: #1a1917;
+  --color-ink-soft: #45433f;
+  --color-ink-muted: #8a867e;
+  --color-ink-faint: #b5b1a9;
+
+  /* Lines */
+  --color-line: #e9e5dc;
+  --color-line-strong: #d8d3c7;
+
+  /* Accent (warm ink) */
+  --color-accent: #2a2722;
+  --color-accent-soft: #f0ede6;
+  --color-accent-hover: #15130f;
+
+  /* Semantic */
+  --color-success: #4a7c59;
+  --color-success-soft: #eaf1ec;
+  --color-warning: #a8761b;
+  --color-warning-soft: #f7efdc;
+  --color-danger: #a63a2e;
+  --color-danger-soft: #f5e5e2;
+  --color-info: #3d5a80;
+  --color-info-soft: #e6ecf4;
+
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+
+  --shadow-xs: 0 1px 2px rgba(26, 25, 23, 0.04);
+  --shadow-sm: 0 1px 3px rgba(26, 25, 23, 0.05), 0 1px 2px rgba(26, 25, 23, 0.03);
+  --shadow-md: 0 6px 16px rgba(26, 25, 23, 0.06), 0 2px 4px rgba(26, 25, 23, 0.04);
+  --shadow-lg: 0 16px 40px rgba(26, 25, 23, 0.08), 0 4px 12px rgba(26, 25, 23, 0.04);
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    border-color: var(--color-line);
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overscroll-behavior-y: none;
+  }
+  ::selection {
+    background: rgba(42, 39, 34, 0.14);
+  }
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+    color: inherit;
+  }
+  input,
+  textarea {
+    background: transparent;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-line-strong);
+    border-radius: 999px;
+    border: 3px solid var(--color-canvas);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .safe-x {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  .pt-safe {
+    padding-top: max(env(safe-area-inset-top), 0.5rem);
+  }
+  .pb-safe {
+    padding-bottom: max(env(safe-area-inset-bottom), 0.5rem);
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .hairline {
+    box-shadow: inset 0 0 0 1px var(--color-line);
+  }
+  .min-h-dvh {
+    min-height: 100dvh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
