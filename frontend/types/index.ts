@@ -38,11 +38,20 @@ export type ProcessingStage =
   | "completed"
   | "failed";
 
+export const PROCESSING_STAGES: ProcessingStage[] = [
+  "uploading",
+  "ocr",
+  "organizing",
+  "researching",
+  "merging",
+  "completed",
+];
+
 export interface ProcessingJob {
   id: string;
   notebookId: string;
   stage: ProcessingStage;
-  progress: number; // 0..100
+  progress: number;
   message?: string;
   startedAt: string;
   updatedAt: string;
@@ -58,11 +67,12 @@ export interface NoteUpload {
   pages: number;
 }
 
-export type SectionKind =
-  | "original"
-  | "organized"
-  | "additional"
-  | "sources";
+export type SectionKind = "original" | "organized" | "additional" | "sources";
+
+export interface NotebookSource {
+  title: string;
+  url: string;
+}
 
 export interface NotebookSection {
   id: string;
@@ -72,7 +82,7 @@ export interface NotebookSection {
   content: string;
   createdAt: string;
   updatedAt: string;
-  sources?: { title: string; url: string }[];
+  sources?: NotebookSource[];
 }
 
 export interface Notebook {
@@ -96,6 +106,8 @@ export type DocumentType =
   | "question-paper"
   | "other";
 
+export type DocumentStatus = "draft" | "final" | "submitted";
+
 export interface Document {
   id: string;
   title: string;
@@ -104,7 +116,7 @@ export interface Document {
   sizeBytes: number;
   uploadedAt: string;
   deadline?: string;
-  status: "final" | "draft" | "submitted";
+  status: DocumentStatus;
   tags?: string[];
 }
 
@@ -124,12 +136,14 @@ export interface Todo {
   completedAt?: string;
 }
 
+export type DeadlineStatus = "upcoming" | "today" | "overdue" | "completed";
+
 export interface Deadline {
   id: string;
   title: string;
   subject?: Subject;
   dueAt: string;
-  status: "upcoming" | "today" | "overdue" | "completed";
+  status: DeadlineStatus;
   linkedDocumentId?: string;
   notes?: string;
 }
@@ -141,6 +155,12 @@ export interface Reminder {
   at: string;
   sent: boolean;
 }
+
+export type ReminderOption =
+  | "7-days"
+  | "3-days"
+  | "1-day"
+  | "3-hours";
 
 export interface Scratchpad {
   id: string;
