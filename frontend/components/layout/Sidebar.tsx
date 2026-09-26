@@ -15,7 +15,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { initials } from "@/lib/utils/format";
-import { mockUser } from "@/lib/mock/data";
+import { useAppStore } from "@/lib/store/AppStore";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 interface NavItem {
   href: string;
@@ -58,29 +59,32 @@ const sections: NavSection[] = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { state } = useAppStore();
 
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-[260px] flex-col border-r border-line bg-canvas lg:flex">
-      <div className="px-5 pt-6 pb-4">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-canvas">
+      {/* Header — with more vertical padding */}
+      <div className="flex items-center justify-between gap-2 px-5 pt-7 pb-5">
+        <Link href="/dashboard" className="flex items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-canvas shadow-xs">
             <BookOpen className="h-4 w-4" />
           </div>
           <span className="font-display text-[19px] tracking-[-0.02em]">
             NoteGPT
           </span>
         </Link>
+        <ThemeToggle size="sm" />
       </div>
 
       <nav className="flex-1 overflow-y-auto px-2 pb-4">
         {sections.map((section, idx) => (
-          <div key={idx} className="mb-1">
+          <div key={idx} className={idx === 0 ? "mb-1" : "mt-4 mb-1"}>
             {section.title ? (
-              <div className="px-3 pb-1 pt-4 text-[11px] font-medium uppercase tracking-[0.08em] text-ink-faint">
+              <div className="px-3 pb-1.5 text-[10.5px] font-semibold uppercase tracking-[0.14em] text-ink-faint">
                 {section.title}
               </div>
             ) : null}
-            <ul>
+            <ul className="space-y-0.5">
               {section.items.map((item) => {
                 const active =
                   pathname === item.href ||
@@ -128,15 +132,15 @@ export function Sidebar() {
           href="/settings"
           className="flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-surface-soft"
         >
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-soft text-[12px] font-semibold text-ink">
-            {initials(mockUser.name)}
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-soft text-[12px] font-semibold text-ink">
+            {initials(state.user.name || state.user.email || "U")}
           </span>
           <span className="min-w-0 flex-1">
             <span className="block truncate text-[13px] font-medium text-ink">
-              {mockUser.name}
+              {state.user.name || "Signed in"}
             </span>
             <span className="block truncate text-[11.5px] text-ink-muted">
-              {mockUser.email}
+              {state.user.email}
             </span>
           </span>
         </Link>

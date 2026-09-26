@@ -38,11 +38,13 @@ export function DocumentCard({
           <FileText className="h-4 w-4" />
         </span>
         <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="line-clamp-1 text-[14px] font-medium text-ink">
+          <div className="flex items-start justify-between gap-3">
+            <h3 className="min-w-0 flex-1 text-pretty text-[14px] font-medium leading-snug text-ink">
               {doc.title}
             </h3>
-            <Badge tone="neutral">{typeLabel[doc.type]}</Badge>
+            <Badge tone="neutral" className="shrink-0">
+              {typeLabel[doc.type]}
+            </Badge>
           </div>
           <p className="mt-1 text-[12px] text-ink-muted">{doc.subject}</p>
           <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] text-ink-muted">

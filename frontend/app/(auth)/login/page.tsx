@@ -2,28 +2,46 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { MagneticButton } from "@/components/ui/MagneticButton";
 import { useToast } from "@/components/ui/Toast";
+import { useAuth } from "@/hooks/useAuth";
+import { useHaptics } from "@/hooks/useHaptics";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
+  const { signIn } = useAuth();
+  const { error: errorHaptic, success: successHaptic } = useHaptics();
+
+  const next = searchParams.get("next") ?? "/dashboard";
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     setLoading(true);
-    // Frontend-only placeholder — Supabase Auth connects later.
-    await new Promise((r) => setTimeout(r, 650));
-    setLoading(false);
-    toast("info", "Auth will be connected soon. Entering the demo.");
-    router.push("/dashboard");
+    try {
+      await signIn(email.trim(), password);
+      successHaptic();
+      toast("success", "Welcome back.");
+      router.push(next);
+      // Do NOT call router.refresh() here — it double-renders and can
+      // break the RSC stream in dev.
+    } catch (err) {
+      errorHaptic();
+      const message =
+        err instanceof Error ? err.message : "Couldn't sign you in.";
+      toast("error", message);
+      setLoading(false);
+    }
   };
 
   return (
@@ -36,57 +54,74 @@ export default function LoginPage() {
         <p className="mb-3 text-[11.5px] font-medium uppercase tracking-[0.14em] text-ink-faint">
           Welcome back
         </p>
-        <h1 className="font-display text-[30px] leading-[1.15] tracking-[-0.02em] text-ink sm:text-[34px]">
-          Sign in to NoteGPT.
+        <h1 className="font-display text-[32px] leading-[1.1] tracking-[-0.025em] text-ink sm:text-[36px]">
+          Sign in to continue.
         </h1>
-        <p className="mt-2 text-pretty text-[14px] leading-relaxed text-ink-muted">
-          Continue where you left off.
+        <p className="mt-3 text-pretty text-[14.5px] leading-relaxed text-ink-muted">
+          Your notebooks, tasks, and deadlines are waiting.
         </p>
       </div>
 
-      <form onSubmit={onSubmit} className="space-y-3.5">
+      <form onSubmit={onSubmit} className="space-y-4">
         <Input
           label="Email"
           type="email"
           autoComplete="email"
           inputMode="email"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
           placeholder="you@university.edu"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-        />
-        <Input
-          label="Password"
-          type="password"
-          autoComplete="current-password"
-          placeholder="••••••••"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
+          disabled={loading}
         />
 
-        <div className="pt-1">
+        <div>
+          <PasswordInput
+            label="Password"
+            autoComplete="current-password"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            disabled={loading}
+          />
+          <div className="mt-2 flex justify-end">
+            <Link
+              href="/forgot-password"
+              className="text-[12.5px] font-medium text-ink-muted transition-colors hover:text-ink"
+            >
+              Forgot password?
+            </Link>
+          </div>
+        </div>
+
+        <div className="pt-2">
           <MagneticButton
             type="submit"
             loading={loading}
             fullWidth
             size="lg"
           >
-            Continue
+            Sign in
             {!loading ? <ArrowRight className="h-4 w-4" /> : null}
           </MagneticButton>
         </div>
       </form>
 
-      <p className="mt-6 text-center text-[13px] text-ink-muted">
-        Don&apos;t have an account?{" "}
-        <Link
-          href="/signup"
-          className="font-medium text-ink underline-offset-4 hover:underline"
-        >
-          Create one
-        </Link>
-      </p>
+      <div className="mt-8 border-t border-line pt-6 text-center">
+        <p className="text-[13.5px] text-ink-muted">
+          New to NoteGPT?{" "}
+          <Link
+            href="/signup"
+            className="font-medium text-ink underline-offset-4 hover:underline"
+          >
+            Create an account
+          </Link>
+        </p>
+      </div>
     </motion.div>
   );
 }

@@ -61,7 +61,7 @@ export function Modal({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="absolute inset-0 bg-ink/25 backdrop-blur-[2px]"
+            className="absolute inset-0 bg-overlay backdrop-blur-[2px]"
           />
           <motion.div
             initial={{
@@ -75,7 +75,7 @@ export function Modal({
             }}
             transition={{ type: "spring", stiffness: 320, damping: 32 }}
             className={cn(
-              "relative z-10 w-full overflow-hidden border border-line bg-surface shadow-lg",
+              "relative z-10 flex w-full flex-col overflow-hidden border border-line bg-surface shadow-lg",
               "rounded-t-2xl sm:rounded-2xl",
               maxWidth,
               mobileFullscreen
@@ -83,9 +83,9 @@ export function Modal({
                 : "max-h-[85dvh]",
             )}
           >
-            <div className="mx-auto mt-2.5 h-1 w-10 rounded-full bg-line-strong sm:hidden" />
+            <div className="mx-auto mt-2.5 h-1 w-10 shrink-0 rounded-full bg-line-strong sm:hidden" />
             {title || description ? (
-              <header className="flex items-start justify-between gap-4 px-5 pt-4 sm:pt-5">
+              <header className="flex shrink-0 items-start justify-between gap-4 px-5 pt-4 sm:pt-5">
                 <div className="min-w-0">
                   {title ? (
                     <h2 className="font-display text-[19px] tracking-[-0.015em] text-ink">
@@ -108,9 +108,11 @@ export function Modal({
                 </button>
               </header>
             ) : null}
-            <div className="overflow-y-auto px-5 pb-5 pt-4">{children}</div>
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-5 pt-4">
+              {children}
+            </div>
             {footer ? (
-              <footer className="flex items-center justify-end gap-2 border-t border-line bg-surface-soft px-5 py-3.5 pb-safe">
+              <footer className="flex shrink-0 items-center justify-end gap-2 border-t border-line bg-surface-soft px-5 py-3.5 pb-safe">
                 {footer}
               </footer>
             ) : null}

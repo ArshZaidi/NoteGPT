@@ -1,62 +1,8 @@
 from functools import lru_cache
-
-from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """
-    Central configuration for the NoteGPT backend.
-
-    Values are loaded from environment variables and backend/.env.
-    """
-
-    # Application
-    environment: str = Field(
-        default="development",
-        validation_alias="ENVIRONMENT",
-    )
-
-    # Frontend
-    frontend_url: str = Field(
-        default="http://localhost:3000",
-        validation_alias="FRONTEND_URL",
-    )
-
-    # Backend
-    backend_host: str = Field(
-        default="127.0.0.1",
-        validation_alias="BACKEND_HOST",
-    )
-
-    backend_port: int = Field(
-        default=8000,
-        validation_alias="BACKEND_PORT",
-    )
-
-    # Supabase
-    supabase_url: str = Field(
-        default="",
-        validation_alias="SUPABASE_URL",
-    )
-
-    supabase_service_role_key: str = Field(
-        default="",
-        validation_alias="SUPABASE_SERVICE_ROLE_KEY",
-    )
-
-    # AI
-    ai_api_key: str = Field(
-        default="",
-        validation_alias="AI_API_KEY",
-    )
-
-    # Web research
-    research_api_key: str = Field(
-        default="",
-        validation_alias="RESEARCH_API_KEY",
-    )
-
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
@@ -64,13 +10,33 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    env: str = "development"
+
+    supabase_url: str
+    supabase_anon_key: str
+    supabase_service_role_key: str
+    supabase_jwt_secret: str
+
+    database_url: str | None = None
+
+    cors_origins: str = "http://localhost:3000"
+
+    # ---- Groq ----
+    groq_api_key: str | None = None
+    groq_model: str = "llama-3.3-70b-versatile"
+    groq_fast_model: str = "llama-3.1-8b-instant"
+    groq_whisper_model: str = "whisper-large-v3"
+
+    # ---- Web research (optional) ----
+    tavily_api_key: str | None = None
+    brave_search_api_key: str | None = None
+    serper_api_key: str | None = None
+
+    @property
+    def cors_origin_list(self) -> list[str]:
+        return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+
 
 @lru_cache
 def get_settings() -> Settings:
-    """
-    Return a cached Settings instance.
-
-    Caching prevents repeatedly parsing the environment
-    variables during the lifetime of the application.
-    """
-    return Settings()
+    return Settings()  # type: ignore[call-arg]

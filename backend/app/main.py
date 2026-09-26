@@ -1,75 +1,29 @@
-from contextlib import asynccontextmanager
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.routes import auth as auth_routes
 from app.core.config import get_settings
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """
-    Application startup/shutdown lifecycle.
-
-    Database connections and other resources can be initialized here
-    later when required.
-    """
-
-    print("NoteGPT backend starting...")
-
-    yield
-
-    print("NoteGPT backend shutting down...")
-
 
 settings = get_settings()
 
 app = FastAPI(
     title="NoteGPT API",
-    description=(
-        "Backend API for NoteGPT — a personal AI-powered "
-        "academic workspace."
-    ),
-    version="0.1.0",
-    lifespan=lifespan,
+    version="0.2.0",
+    docs_url="/docs" if settings.env != "production" else None,
+    redoc_url=None,
 )
-
-# --------------------------------------------------
-# CORS
-# --------------------------------------------------
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        settings.frontend_url,
-    ],
+    allow_origins=settings.cors_origin_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
-# --------------------------------------------------
-# Root
-# --------------------------------------------------
-
-@app.get("/")
-async def root():
-    return {
-        "name": "NoteGPT API",
-        "version": "0.1.0",
-        "status": "online",
-    }
+app.include_router(auth_routes.router)
 
 
-# --------------------------------------------------
-# Health
-# --------------------------------------------------
-
-@app.get("/api/health")
-async def health_check():
-    return {
-        "status": "healthy",
-        "service": "notegpt-backend",
-        "environment": settings.environment,
-    }
+@app.get("/health")
+async def health() -> dict[str, str]:
+    return {"status": "ok", "env": settings.env}

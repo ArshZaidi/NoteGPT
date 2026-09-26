@@ -5,6 +5,8 @@ import { ToastProvider } from "@/components/ui/Toast";
 import { SmoothScroll } from "@/components/layout/SmoothScroll";
 import { AppStoreProvider } from "@/lib/store/AppStore";
 import { ModalsProvider } from "@/components/layout/ModalsProvider";
+import { AuthProvider } from "@/components/providers/AuthProvider";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -35,8 +37,25 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#faf9f5",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#faf9f5" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f0e0c" },
+  ],
 };
+
+/**
+ * Runs before React hydrates so the correct theme is applied instantly.
+ * Prevents flash-of-wrong-theme.
+ */
+const themeScript = `
+(function(){
+  try {
+    var t = localStorage.getItem('notegpt.theme') || 'system';
+    var d = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    if (d) document.documentElement.classList.add('dark');
+  } catch(e){}
+})();
+`;
 
 export default function RootLayout({
   children,
@@ -44,15 +63,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${displaySerif.variable}`}>
+    <html
+      lang="en"
+      className={`${inter.variable} ${displaySerif.variable}`}
+      suppressHydrationWarning
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="antialiased">
-        <AppStoreProvider>
-          <ModalsProvider>
-            <SmoothScroll>
-              <ToastProvider>{children}</ToastProvider>
-            </SmoothScroll>
-          </ModalsProvider>
-        </AppStoreProvider>
+        <ThemeProvider>
+          <AppStoreProvider>
+            <AuthProvider>
+              <ModalsProvider>
+                <SmoothScroll>
+                  <ToastProvider>{children}</ToastProvider>
+                </SmoothScroll>
+              </ModalsProvider>
+            </AuthProvider>
+          </AppStoreProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -1,32 +1,23 @@
-from functools import lru_cache
-
 from supabase import Client, create_client
-
 from app.core.config import get_settings
 
+_settings = get_settings()
 
-@lru_cache
-def get_supabase() -> Client:
-    """
-    Create and cache the Supabase client.
+# Anon client — respects RLS. Used with a user's JWT for user-scoped reads.
+anon_client: Client = create_client(
+    _settings.supabase_url,
+    _settings.supabase_anon_key,
+)
 
-    The service-role key is used ONLY by the backend.
-    It must never be exposed to the Next.js frontend.
-    """
+# Service client — bypasses RLS. Use ONLY in trusted server code.
+service_client: Client = create_client(
+    _settings.supabase_url,
+    _settings.supabase_service_role_key,
+)
 
-    settings = get_settings()
 
-    if not settings.supabase_url:
-        raise RuntimeError(
-            "SUPABASE_URL is not configured."
-        )
-
-    if not settings.supabase_service_role_key:
-        raise RuntimeError(
-            "SUPABASE_SERVICE_ROLE_KEY is not configured."
-        )
-
-    return create_client(
-        settings.supabase_url,
-        settings.supabase_service_role_key,
-    )
+def user_client(access_token: str) -> Client:
+    """Return a client that authenticates as the given user (RLS enforced)."""
+    client = create_client(_settings.supabase_url, _settings.supabase_anon_key)
+    client.postgrest.auth(access_token)
+    return client

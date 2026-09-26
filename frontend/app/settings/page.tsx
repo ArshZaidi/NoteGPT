@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/Button";
 import { SegmentedControl } from "@/components/ui/SegmentedControl";
 import { useToast } from "@/components/ui/Toast";
 import { useAppStore, type Preferences } from "@/lib/store/AppStore";
+import { useTheme, type Theme } from "@/components/providers/ThemeProvider";
+import { SignOutButton } from "@/components/auth/SignOutButton";
 
 type Density = "comfortable" | "compact";
 
@@ -27,6 +29,7 @@ export default function SettingsPage() {
   const [university, setUniversity] = useState(user.university ?? "");
   const [program, setProgram] = useState(user.program ?? "");
   const [year, setYear] = useState(String(user.year ?? 1));
+  const { theme, setTheme } = useTheme();
 
   // Sync with store once hydrated.
   useEffect(() => {
@@ -123,7 +126,25 @@ export default function SettingsPage() {
         {/* Appearance */}
         <section>
           <SectionHeader title="Appearance" />
-          <div className="space-y-3 rounded-xl border border-line bg-surface p-5">
+          <div className="space-y-4 rounded-xl border border-line bg-surface p-5">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-[14px] font-medium text-ink">Theme</p>
+                <p className="mt-0.5 text-[12.5px] text-ink-muted">
+                  Light, dark, or follow your system.
+                </p>
+              </div>
+              <SegmentedControl<Theme>
+                value={theme}
+                onChange={setTheme}
+                options={[
+                  { value: "light", label: "Light" },
+                  { value: "dark", label: "Dark" },
+                  { value: "system", label: "System" },
+                ]}
+              />
+            </div>
+            <div className="h-px bg-line" />
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-[14px] font-medium text-ink">Density</p>
@@ -274,12 +295,7 @@ export default function SettingsPage() {
                   End this session on this device.
                 </p>
               </div>
-              <Link href="/login">
-                <Button variant="secondary">
-                  <LogOut className="h-3.5 w-3.5" />
-                  Sign out
-                </Button>
-              </Link>
+              <SignOutButton />
             </div>
           </div>
         </section>
